@@ -51,6 +51,23 @@ async def info(ctx):
     await ctx.send(embed=embed)
 
 
+
+@bot.command()
+async def checkperms(ctx):
+    member = ctx.guild.me
+    perms = ctx.channel.permissions_for(member)
+
+    print("\n===== BOT PERMISSION CHECK =====")
+    print(f"Server: {ctx.guild.name} ({ctx.guild.id})")
+    print(f"Channel: {ctx.channel.name} ({ctx.channel.id})")
+    print(f"Bot: {member} ({member.id})")
+    print(f"View Channel: {perms.view_channel}")
+    print(f"Send Messages: {perms.send_messages}")
+    print(f"Send in Threads: {perms.send_messages_in_threads}")
+    print(f"Embed Links: {perms.embed_links}")
+    print(f"Read History: {perms.read_message_history}")
+    print("================================\n")
+
 # Run bot
 if not TOKEN:
     raise ValueError("DISCORD_TOKEN not found in .env file!")
