@@ -1,5 +1,5 @@
 import os
-
+import random 
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -67,6 +67,13 @@ async def checkperms(ctx):
     print(f"Embed Links: {perms.embed_links}")
     print(f"Read History: {perms.read_message_history}")
     print("================================\n")
+
+gali=["gandu", "madarchod", "bhosdike", "chutiya", "harami", "randi", "bhenchod", "lodu", "lund", "chodu"]
+
+@bot.command()
+async def gali_de(ctx):
+    await ctx.send(random.choice(gali))
+
 
 # Run bot
 if not TOKEN:
