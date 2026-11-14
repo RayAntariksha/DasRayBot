@@ -128,6 +128,18 @@ async def whois(ctx, *, search_name: str):
                         value=row["username"],
                         inline=False
                     )
+                if row["username"].strip().lower() == search_name.strip().lower():
+                    embed = discord.Embed(
+                        title=row["name"],
+                        description=row["bio"],
+                        color=discord.Color.blue()
+                    )
+
+                    embed.add_field(
+                        name="Username",
+                        value=row["username"],
+                        inline=False
+                    )
 
                     await ctx.reply(embed=embed)
                     return
