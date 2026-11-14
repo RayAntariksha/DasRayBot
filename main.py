@@ -81,16 +81,22 @@ gali = [
 
 
 @bot.command()
-async def gali_de(ctx):
+async def galide(ctx):
     await ctx.send(random.choice(gali))
 
 
 # audio stuff
+
 @bot.command()
-async def fahh(ctx):
+async def playsound(ctx, *, sound_name: str):
     try:
-        file = discord.File("./assets/audio/fahh.mp3", filename="fahh.mp3")
+        path = f"./assets/audio/{sound_name}.mp3"
+
+        file = discord.File(path, filename=f"{sound_name}.mp3")
         await ctx.reply(file=file)
+
+    except FileNotFoundError:
+        await ctx.reply("Audio file not found!")
 
     except discord.Forbidden:
         print("Missing permissions to send audio!")
