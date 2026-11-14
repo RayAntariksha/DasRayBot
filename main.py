@@ -97,7 +97,7 @@ async def playsound(ctx, *, sound_name: str):
         await ctx.reply(file=file)
 
     except FileNotFoundError:
-        await ctx.reply("Audio file not found!")
+        await ctx.reply("Audio file not found!, try using !audiolist to see available audio files.")
 
     except discord.Forbidden:
         print("Missing permissions to send audio!")
@@ -157,6 +157,12 @@ async def whois(ctx, *, search_name: str):
 
     except (KeyError, TypeError) as e:
         print(f"CSV formatting error: {e}")
+
+@bot.command()
+async def audiolist(ctx):
+    audio_files = os.listdir('./assets/audio')
+    await ctx.send(f"Available audio files: {', '.join(audio_files)}")
+
 
 # Run bot
 if not TOKEN:
