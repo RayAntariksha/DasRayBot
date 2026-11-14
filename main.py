@@ -1,5 +1,6 @@
 import os
-import random 
+import random
+
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -51,7 +52,6 @@ async def info(ctx):
     await ctx.send(embed=embed)
 
 
-
 @bot.command()
 async def checkperms(ctx):
     member = ctx.guild.me
@@ -66,14 +66,37 @@ async def checkperms(ctx):
     print(f"Send in Threads: {perms.send_messages_in_threads}")
     print(f"Embed Links: {perms.embed_links}")
     print(f"Read History: {perms.read_message_history}")
+    print(f"View Channel:, {perms.view_channel}")
+    print(f"Send Messages:, {perms.send_messages}")
+    print(f"Attach Files:, {perms.attach_files}")
     print("================================\n")
 
-gali=["gandu", "madarchod", "bhosdike", "chutiya", "harami", "randi", "bhenchod", "lodu", "lund", "chodu"]
+# To anyone reading this, please don't read the array below. It is just a joke.
+# I am warning you, DON'T READ THE ARRAY BELOW. YOU WILL BE RESPONSIBLE FOR IT.
+gali = [
+        "gandu", "madarchod", "bhosdike", "chutiya", "harami", "randi",
+        "bhenchod", "lodu", "lund", "chodu", "gali kere ditam be?",
+        "Sala bokka choda tor dudh er kosom tor moto leura choda ami deksi na"
+        ]
+
 
 @bot.command()
 async def gali_de(ctx):
     await ctx.send(random.choice(gali))
 
+
+# audio stuff
+@bot.command()
+async def fahh(ctx):
+    try:
+        file = discord.File("./assets/audio/fahh.mp3", filename="fahh.mp3")
+        await ctx.reply(file=file)
+
+    except discord.Forbidden:
+        print("Missing permissions to send audio!")
+
+    except discord.HTTPException as e:
+        print(f"Discord API error: {e}")
 
 # Run bot
 if not TOKEN:
