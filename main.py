@@ -74,6 +74,39 @@ gali=["gandu", "madarchod", "bhosdike", "chutiya", "harami", "randi", "bhenchod"
 async def gali_de(ctx):
     await ctx.send(random.choice(gali))
 
+@bot.command()
+async def who_is(ctx, *, msg):
+    name = msg.split()[0]
+    if name.lower() == "tanay":
+        await ctx.send(f"{name} is sin theta paglu/ tantheta")
+    elif name.lower() == "antariksha":
+        await ctx.send(f"{name} is Universal Riksha")
+    elif name.lower() == "deepraj":
+        await ctx.send(f"{name} is our Bhabi Ji")
+    elif name.lower() == "anshuman":
+        await ctx.send(f"{name} is Duduman/ Antman")
+    elif name.lower() == "somnath":
+        await ctx.send(f"{name} is Chomu")
+    elif name.lower() == "abhishek":
+        await ctx.send(f"{name} is Kalu Bhai")
+    elif name.lower() == "shubhrajyoti":
+        await ctx.send(f"{name} is Wak/ Loti") 
+    elif name.lower() == "abhinab":
+        await ctx.send(f"{name} is Haddi")
+    elif name.lower() == "seymas":
+        await ctx.send(f"{name} is Sap/ chhoimas")
+    elif name.lower() == "jakob":
+        await ctx.send(f"{name} is Hizra/ Alpha Male")
+    elif name.lower() == "soumik":
+        await ctx.send(f"{name} is Auntu")  
+    elif name.lower() == "samrat": 
+        await ctx.send(f"{name} is raitta")
+    elif name.lower() == "roshan": 
+        await ctx.send(f"{name} is the GOAT")
+    elif name.lower() == "modi": 
+        await ctx.send(f"{name} is modihhh")       
+    else:
+        await ctx.send(f"idk who tf that is")  
 
 # Run bot
 if not TOKEN:
