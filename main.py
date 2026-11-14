@@ -3,6 +3,7 @@ import os
 import random
 
 import discord
+import pyjokes
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -107,44 +108,39 @@ async def playsound(ctx, *, sound_name: str):
 
 
 # Who is it?
-
-
 @bot.command()
 async def whois(ctx, *, search_name: str):
     try:
         with open("./assets/friends.csv", "r", encoding="utf-8", newline="") as csvfile:
-            reader = csv.DictReader(csvfile)
+            reader = csv.DictReader(csvfile, skipinitialspace=True)
+
+            search_name = search_name.strip().lower()
 
             for row in reader:
-                if row["name"].strip().lower() == search_name.strip().lower():
+                name = row["name"].strip()
+                username = row["username"].strip()
+
+                if (name.lower() == search_name or
+                    username.lower() == search_name):
+
                     embed = discord.Embed(
-                        title=row["name"],
-                        description=row["bio"],
+                        title=name,
+                        description=row["bio"].strip(),
                         color=discord.Color.blue()
                     )
 
                     embed.add_field(
                         name="Username",
-                        value=row["username"],
-                        inline=False
-                    )
-                if row["username"].strip().lower() == search_name.strip().lower():
-                    embed = discord.Embed(
-                        title=row["name"],
-                        description=row["bio"],
-                        color=discord.Color.blue()
-                    )
-
-                    embed.add_field(
-                        name="Username",
-                        value=row["username"],
+                        value=username,
                         inline=False
                     )
 
                     await ctx.reply(embed=embed)
                     return
 
-        await ctx.reply(f"No friend named **{search_name}** was found!")
+        await ctx.reply(
+            f"No friend named **{search_name}** was found!"
+        )
 
     except FileNotFoundError:
         await ctx.reply("The friends database could not be found!")
@@ -159,6 +155,59 @@ async def whois(ctx, *, search_name: str):
         print(f"CSV formatting error: {e}")
 
 @bot.command()
+async def changebio(ctx, *, args: str):
+    try:
+        name, new_bio = args.split("|", 1)
+
+        name = name.strip()
+        new_bio = new_bio.strip()
+
+        if not name or not new_bio:
+            await ctx.reply("Usage: `!changebio Name | New bio`")
+            return
+
+        path = "./assets/friends.csv"
+
+        with open(path, "r", encoding="utf-8", newline="") as csvfile:
+            reader = csv.DictReader(csvfile)
+            fieldnames = reader.fieldnames
+            rows = list(reader)
+
+        if not fieldnames or not {"name", "bio"}.issubset(fieldnames):
+            await ctx.reply("Invalid friends database format!")
+            return
+
+        for row in rows:
+            if row["name"].strip().lower() == name.lower():
+                row["bio"] = new_bio
+
+                with open(path, "w", encoding="utf-8", newline="") as csvfile:
+                    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                    writer.writeheader()
+                    writer.writerows(rows)
+
+                await ctx.reply(f"Successfully updated **{name}**'s bio!")
+                return
+
+        await ctx.reply(f"No friend named **{name}** was found!")
+
+    except ValueError:
+        await ctx.reply("Usage: `!changebio Name | New bio`")
+
+    except FileNotFoundError:
+        await ctx.reply("The friends database could not be found!")
+
+    except discord.Forbidden:
+        print("Missing permissions to send messages!")
+
+    except discord.HTTPException as e:
+        print(f"Discord API error: {e}")
+
+    except (KeyError, TypeError) as e:
+        print(f"CSV formatting error: {e}")
+
+
+@bot.command()
 async def soundlist(ctx):
     audio_files = os.listdir('./assets/audio')
     response = "```"
@@ -168,6 +217,9 @@ async def soundlist(ctx):
     await ctx.send(f"Available audio files: \n {response}")
 
 
+@bot.command()
+async def joke(ctx):
+    await ctx.send(pyjokes.get_joke(category='neutral'))
 # Run bot
 if not TOKEN:
     raise ValueError("DISCORD_TOKEN not found in .env file!")
