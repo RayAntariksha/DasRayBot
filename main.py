@@ -1,5 +1,7 @@
+import csv
 import os
-import random 
+import random
+
 import discord
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -51,7 +53,6 @@ async def info(ctx):
     await ctx.send(embed=embed)
 
 
-
 @bot.command()
 async def checkperms(ctx):
     member = ctx.guild.me
@@ -66,12 +67,22 @@ async def checkperms(ctx):
     print(f"Send in Threads: {perms.send_messages_in_threads}")
     print(f"Embed Links: {perms.embed_links}")
     print(f"Read History: {perms.read_message_history}")
+    print(f"View Channel:, {perms.view_channel}")
+    print(f"Send Messages:, {perms.send_messages}")
+    print(f"Attach Files:, {perms.attach_files}")
     print("================================\n")
 
-gali=["gandu", "madarchod", "bhosdike", "chutiya", "harami", "randi", "bhenchod", "lodu", "lund", "chodu"]
+# To anyone reading this, please don't read the array below. It is just a joke.
+# I am warning you, DON'T READ THE ARRAY BELOW. YOU WILL BE RESPONSIBLE FOR IT.
+gali = [
+        "gandu", "madarchod", "bhosdike", "chutiya", "harami", "randi",
+        "bhenchod", "lodu", "lund", "chodu", "gali kere ditam be?",
+        "Sala bokka choda tor dudh er kosom tor moto leura choda ami deksi na"
+        ]
+
 
 @bot.command()
-async def gali_de(ctx):
+async def galide(ctx):
     await ctx.send(random.choice(gali))
 
 @bot.command()
@@ -107,6 +118,66 @@ async def who_is(ctx, *, msg):
         await ctx.send(f"{name} is modihhh")       
     else:
         await ctx.send(f"idk who tf that is")  
+
+# audio stuff
+
+@bot.command()
+async def playsound(ctx, *, sound_name: str):
+    try:
+        path = f"./assets/audio/{sound_name}.mp3"
+
+        file = discord.File(path, filename=f"{sound_name}.mp3")
+        await ctx.reply(file=file)
+
+    except FileNotFoundError:
+        await ctx.reply("Audio file not found!")
+
+    except discord.Forbidden:
+        print("Missing permissions to send audio!")
+
+    except discord.HTTPException as e:
+        print(f"Discord API error: {e}")
+
+
+# Who is it?
+
+
+@bot.command()
+async def whois(ctx, *, search_name: str):
+    try:
+        with open("./assets/friends.csv", "r", encoding="utf-8", newline="") as csvfile:
+            reader = csv.DictReader(csvfile)
+
+            for row in reader:
+                if row["name"].strip().lower() == search_name.strip().lower():
+                    embed = discord.Embed(
+                        title=row["name"],
+                        description=row["bio"],
+                        color=discord.Color.blue()
+                    )
+
+                    embed.add_field(
+                        name="Username",
+                        value=row["username"],
+                        inline=False
+                    )
+
+                    await ctx.reply(embed=embed)
+                    return
+
+        await ctx.reply(f"No friend named **{search_name}** was found!")
+
+    except FileNotFoundError:
+        await ctx.reply("The friends database could not be found!")
+
+    except discord.Forbidden:
+        print("Missing permissions to send messages!")
+
+    except discord.HTTPException as e:
+        print(f"Discord API error: {e}")
+
+    except (KeyError, TypeError) as e:
+        print(f"CSV formatting error: {e}")
 
 # Run bot
 if not TOKEN:
