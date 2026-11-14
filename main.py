@@ -159,9 +159,13 @@ async def whois(ctx, *, search_name: str):
         print(f"CSV formatting error: {e}")
 
 @bot.command()
-async def audiolist(ctx):
+async def soundlist(ctx):
     audio_files = os.listdir('./assets/audio')
-    await ctx.send(f"Available audio files: {', '.join(audio_files)}")
+    response = "```"
+    for files in audio_files:
+        response = response + files.split(".")[0] + "\n"
+    response = response + "```"
+    await ctx.send(f"Available audio files: \n {response}")
 
 
 # Run bot
