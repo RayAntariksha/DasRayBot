@@ -1,3 +1,4 @@
+import csv
 import os
 import random
 
@@ -103,6 +104,47 @@ async def playsound(ctx, *, sound_name: str):
 
     except discord.HTTPException as e:
         print(f"Discord API error: {e}")
+
+
+# Who is it?
+
+
+@bot.command()
+async def whois(ctx, *, search_name: str):
+    try:
+        with open("./assets/friends.csv", "r", encoding="utf-8", newline="") as csvfile:
+            reader = csv.DictReader(csvfile)
+
+            for row in reader:
+                if row["name"].strip().lower() == search_name.strip().lower():
+                    embed = discord.Embed(
+                        title=row["name"],
+                        description=row["bio"],
+                        color=discord.Color.blue()
+                    )
+
+                    embed.add_field(
+                        name="Username",
+                        value=row["username"],
+                        inline=False
+                    )
+
+                    await ctx.reply(embed=embed)
+                    return
+
+        await ctx.reply(f"No friend named **{search_name}** was found!")
+
+    except FileNotFoundError:
+        await ctx.reply("The friends database could not be found!")
+
+    except discord.Forbidden:
+        print("Missing permissions to send messages!")
+
+    except discord.HTTPException as e:
+        print(f"Discord API error: {e}")
+
+    except (KeyError, TypeError) as e:
+        print(f"CSV formatting error: {e}")
 
 # Run bot
 if not TOKEN:
