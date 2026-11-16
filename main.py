@@ -1,25 +1,26 @@
 import csv
 import os
 import random
-
+from zoneinfo import ZoneInfo
 import discord
-from discord.ext import commands
+from datetime import datetime, timezone
+from discord.ext import commands, tasks
 from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
 
+MEMBER_COUNT = "./assets/count.csv"
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 # Configure bot intents
 intents = discord.Intents.default()
 intents.message_content = True
+intents.presences = True
+intents.members = True
 
 # Initialize bot
-bot = commands.Bot(
-    command_prefix="!",
-    intents=intents
-)
+bot = commands.Bot(command_prefix="!", intents=intents)
 
 
 @bot.event
@@ -34,6 +35,70 @@ async def on_ready():
     print(" ╚═╝  ╚═╝ ╚═╝  ╚═╝    ╚═╝    ╚═════╝  ╚═╝  ╚═╝ ╚══════╝")
     print("")
     print("Bot is ready!")
+
+    if not log_online_users.is_running():
+        log_online_users.start()
+
+
+@bot.command()
+async def online(ctx):
+    online_members = [
+        member.display_name
+        for member in ctx.guild.members
+        if member.status != discord.Status.offline
+    ]
+    await ctx.send(
+        f"**Online Members ({len(online_members)}):**\n" + ", ".join(online_members)
+    )
+
+
+# Create the CSV file with headers if it doesn't exist
+if not os.path.exists(MEMBER_COUNT):
+    with open(MEMBER_COUNT, "w", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+        writer.writerow(["Date", "Time", "Server", "Online Count", "Online Members"])
+
+
+@tasks.loop(minutes=1)
+async def log_online_users():
+    now = datetime.now(ZoneInfo("Asia/Kolkata"))
+
+    with open(MEMBER_COUNT, "a", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+
+        for guild in bot.guilds:
+            # Exclude bots and offline members
+            online_members = [
+                member.display_name
+                for member in guild.members
+                if member.status != discord.Status.offline and not member.bot
+            ]
+
+            count = len(online_members)
+
+            writer.writerow(
+                [
+                    now.date(),
+                    now.strftime("%H:%M:%S"),
+                    guild.name,
+                    count,
+                    ", ".join(online_members),
+                ]
+            )
+
+    print(f"Logged online users at {now.strftime('%H:%M:%S')}")
+
+
+@log_online_users.before_loop
+async def before_log_online_users():
+    await bot.wait_until_ready()
+
+
+# The Owner can download the CSV file with !download_logs
+@bot.command()
+@commands.is_owner()
+async def download_logs(ctx):
+    await ctx.send(file=discord.File(MEMBER_COUNT))
 
 
 @bot.command()
@@ -51,7 +116,7 @@ async def info(ctx):
     embed = discord.Embed(
         title="Bot Information",
         description="A simple Discord bot built with discord.py.",
-        color=discord.Color.blurple()
+        color=discord.Color.blurple(),
     )
 
     embed.add_field(name="Bot Name", value=bot.user.name)
@@ -80,13 +145,23 @@ async def checkperms(ctx):
     print(f"Attach Files:, {perms.attach_files}")
     print("================================\n")
 
+
 # To anyone reading this, please don't read the array below. It is just a joke.
 # I am warning you, DON'T READ THE ARRAY BELOW. YOU WILL BE RESPONSIBLE FOR IT.
 gali = [
-        "gandu", "madarchod", "bhosdike", "chutiya", "harami", "randi",
-        "bhenchod", "lodu", "lund", "chodu", "gali kere ditam be?",
-        "Sala bokka choda tor dudh er kosom tor moto leura choda ami deksi na"
-        ]
+    "gandu",
+    "madarchod",
+    "bhosdike",
+    "chutiya",
+    "harami",
+    "randi",
+    "bhenchod",
+    "lodu",
+    "lund",
+    "chodu",
+    "gali kere ditam be?",
+    "Sala bokka choda tor dudh er kosom tor moto leura choda ami deksi na",
+]
 
 
 @bot.command()
@@ -95,6 +170,7 @@ async def galide(ctx):
 
 
 # audio stuff
+
 
 @bot.command()
 async def playsound(ctx, *, sound_name: str):
@@ -105,7 +181,9 @@ async def playsound(ctx, *, sound_name: str):
         await ctx.reply(file=file)
 
     except FileNotFoundError:
-        await ctx.reply("Audio file not found!, try using !audiolist to see available audio files.")
+        await ctx.reply(
+            "Audio file not found! Try using !soundlist to see available sounds"
+        )
 
     except discord.Forbidden:
         print("Missing permissions to send audio!")
@@ -114,11 +192,44 @@ async def playsound(ctx, *, sound_name: str):
         print(f"Discord API error: {e}")
 
 
+@bot.command()
+async def meme(ctx, *, meme_name: str):
+    try:
+        path = f"./assets/memes/{meme_name}.jpg"
+
+        file = discord.File(path, filename=f"{meme_name}.jpg")
+        await ctx.reply(file=file)
+
+    except FileNotFoundError:
+        await ctx.reply("Meme not found! Try using !memelist to see available memes")
+
+    except discord.Forbidden:
+        print("Missing permissions to send audio!")
+
+    except discord.HTTPException as e:
+        print(f"Discord API error: {e}")
+
+
+@bot.command()
+async def memelist(ctx):
+    audio_files = os.listdir("./assets/memes")
+    response = "```"
+    for files in audio_files:
+        response = response + files.split(".")[0] + "\n"
+    response = response + "```"
+    await ctx.send(f"Available audio files: \n {response}")
+
+
 # Who is it?
 @bot.command()
 async def whois(ctx, *, search_name: str):
     try:
-        with open("./assets/friends.csv", "r", encoding="utf-8", newline="") as csvfile:
+        with open(
+            "./assets/friends.csv",
+            "r",
+            encoding="utf-8",
+            newline="",
+        ) as csvfile:
             reader = csv.DictReader(csvfile, skipinitialspace=True)
 
             search_name = search_name.strip().lower()
@@ -135,14 +246,14 @@ async def whois(ctx, *, search_name: str):
                         description=row["bio"].strip(),
                         color=discord.Color.blue(),
                     )
-                    embed.add_field(name="Display name", value=displayname, inline=False)
+                    embed.add_field(
+                        name="Display name", value=displayname, inline=False
+                    )
                     embed.add_field(name="Username", value=username, inline=False)
                     await ctx.reply(embed=embed)
                     return
 
-        await ctx.reply(
-            f"No friend named **{search_name}** was found!"
-        )
+        await ctx.reply(f"No friend named **{search_name}** was found!")
 
     except FileNotFoundError:
         await ctx.reply("The friends database could not be found!")
@@ -155,6 +266,7 @@ async def whois(ctx, *, search_name: str):
 
     except (KeyError, TypeError) as e:
         print(f"CSV formatting error: {e}")
+
 
 @bot.command()
 async def changebio(ctx, *, args: str):
@@ -211,7 +323,7 @@ async def changebio(ctx, *, args: str):
 
 @bot.command()
 async def soundlist(ctx):
-    audio_files = os.listdir('./assets/audio')
+    audio_files = os.listdir("./assets/audio")
     response = "```"
     for files in audio_files:
         response = response + files.split(".")[0] + "\n"
