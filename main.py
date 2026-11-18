@@ -27,12 +27,12 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def on_ready():
     print(f"Logged in as {bot.user}")
     print("")
-    print(" ██████╗   █████╗  ██╗   ██╗ ██████╗   █████╗  ███████╗")
-    print(" ██╔══██╗ ██╔══██╗ ╚██╗ ██╔╝ ██╔══██╗ ██╔══██╗ ██╔════╝")
-    print(" ██████╔╝ ███████║  ╚████╔╝  ██║  ██║ ███████║ ███████╗")
-    print(" ██╔══██╗ ██╔══██║   ╚██╔╝   ██║  ██║ ██╔══██║ ╚════██║")
-    print(" ██║  ██║ ██║  ██║    ██║    ██████╔╝ ██║  ██║ ███████║")
-    print(" ╚═╝  ╚═╝ ╚═╝  ╚═╝    ╚═╝    ╚═════╝  ╚═╝  ╚═╝ ╚══════╝")
+    print("  ____             ____             ____        ")
+    print(" |  _ \\  __ _ ___ |  _ \\  __ _  ___/ __ \\ _ __  ")
+    print(" | | | |/ _` / __|| |_) |/ _` |/ _ \\ / _` | '_ \\ ")
+    print(" | |_| | (_| \\__ \\|  _ <| (_| | (_) | (_| | |_) |")
+    print(" |____/ \\__,_|___/|_| \\_\\\\__,_|\\___/ \\__,_| .__/ ")
+    print("                                          |_|    ")
     print("")
     print("Bot is ready!")
 
@@ -329,6 +329,13 @@ async def soundlist(ctx):
         response = response + files.split(".")[0] + "\n"
     response = response + "```"
     await ctx.send(f"Available audio files: \n {response}")
+
+coin=["Heads", "Tails"]
+
+@bot.command()
+async def flip(ctx):
+    result = random.choice(coin)
+    await ctx.send(f"The coin landed on: **{result}**")
 
 
 # Run bot
