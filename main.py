@@ -337,11 +337,9 @@ async def coinflip(ctx):
     result = random.choice(coin)
     await ctx.send(f"The coin landed on: **{result}**")
 
-dice=["1", "2", "3", "4", "5", "6"]
-
 @bot.command()
 async def diceroll(ctx):
-    result = random.choice(dice)
+    result = random.randint(1, 6)
     await ctx.send(f"The dice rolled: **{result}**")
 
 # Run bot
