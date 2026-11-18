@@ -333,10 +333,16 @@ async def soundlist(ctx):
 coin=["Heads", "Tails"]
 
 @bot.command()
-async def flip(ctx):
+async def coinflip(ctx):
     result = random.choice(coin)
     await ctx.send(f"The coin landed on: **{result}**")
 
+dice=["1", "2", "3", "4", "5", "6"]
+
+@bot.command()
+async def diceroll(ctx):
+    result = random.choice(dice)
+    await ctx.send(f"The dice rolled: **{result}**")
 
 # Run bot
 if not TOKEN:
