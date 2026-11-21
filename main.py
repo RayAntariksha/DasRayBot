@@ -342,6 +342,12 @@ async def diceroll(ctx):
     result = random.randint(1, 6)
     await ctx.send(f"The dice rolled: **{result}**")
 
+@bot.command()
+@commands.has_permissions(manage_messages=True)
+async def delete(ctx, amount: int):
+    deleted = await ctx.channel.purge(limit=amount + 1)
+    await ctx.send(f"Deleted {len(deleted) - 1} messages.", delete_after=3)
+
 # Run bot
 if not TOKEN:
     raise ValueError("DISCORD_TOKEN not found in .env file!")
